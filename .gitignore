@@ -1,0 +1,57 @@
+############################
+# Python / Django
+############################
+
+# 虚拟环境
+venv/
+taskflow/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Django
+db.sqlite3
+media/
+
+# migrations 可选（建议保留）
+# */migrations/
+
+############################
+# Node / Vue
+############################
+
+node_modules/
+dist/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+############################
+# VSCode
+############################
+
+.vscode/
+
+############################
+# Mac / Linux
+############################
+
+.DS_Store
+*.swp
+
+############################
+# Environment variables
+############################
+
+.env
+.env.local
+
+############################
+# Logs
+############################
+
+*.log
