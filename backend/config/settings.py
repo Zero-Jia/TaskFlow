@@ -17,12 +17,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # third-party
     'rest_framework',
     'corsheaders',
 
-    # local apps
-    'apps.users',
+    'apps.users.apps.UsersConfig',
 ]
 
 MIDDLEWARE = [
@@ -55,11 +53,17 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-# Day 1 先用 SQLite
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'taskflow',
+        'USER': 'alice',
+        'PASSWORD': '123456',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
 }
 
@@ -85,3 +89,5 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
 }
+
+AUTH_USER_MODEL = 'users.User'
