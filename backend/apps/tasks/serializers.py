@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.teams.models import TeamMember
-from .models import Task
+from .models import Task, Comment
 
 User = get_user_model()
 
@@ -154,6 +154,28 @@ class TaskDetailSerializer(serializers.ModelSerializer):
             'due_date',
             'created_at',
             'updated_at',
+        ]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author_username = serializers.CharField(source='author.username', read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = [
+            'id',
+            'task',
+            'author',
+            'author_username',
+            'content',
+            'created_at',
+        ]
+        read_only_fields = [
+            'id',
+            'task',
+            'author',
+            'author_username',
+            'created_at',
         ]
 
 

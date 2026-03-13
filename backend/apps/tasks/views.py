@@ -5,7 +5,7 @@ from rest_framework import status
 
 from apps.projects.models import Project
 from apps.teams.models import TeamMember
-from .models import Task
+from .models import Task, Comment
 from .serializers import (
     TaskCreateSerializer,
     TaskUpdateSerializer,
@@ -14,6 +14,7 @@ from .serializers import (
     TaskAssigneeUpdateSerializer,
     TaskListSerializer,
     TaskDetailSerializer,
+    CommentSerializer,
     ProjectMemberOptionSerializer,
 )
 
@@ -222,4 +223,66 @@ def project_member_options(request, project_id):
     return Response({
         'message': '获取项目成员选项成功',
         'members': serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+def task_comment_list_create(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    if request.method == 'GET':
+        comments = Comment.objects.filter(task=task).select_related('author').order_by('created_at')
+        serializer = CommentSerializer(comments, many=True)
+        return Response({
+            'message': '获取评论列表成功',
+            'comments': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    content = request.data.get('content', '').strip()
+    if not content:
+        return Response({
+            'message': '发表评论失败',
+            'errors': {
+                'content': ['评论内容不能为空']
+            }
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    comment = Comment.objects.create(
+        task=task,
+        author=request.user,
+        content=content
+    )
+
+    return Response({
+        'message': '评论发布成功',
+        'comment': CommentSerializer(comment).data
+    }, status=status.HTTP_201_CREATED)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_task_comment(request, task_id, comment_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    try:
+        comment = Comment.objects.select_related('author', 'task').get(id=comment_id, task=task)
+    except Comment.DoesNotExist:
+        return Response({
+            'message': '评论不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if comment.author != request.user:
+        return Response({
+            'message': '你只能删除自己的评论'
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    comment.delete()
+
+    return Response({
+        'message': '评论删除成功'
     }, status=status.HTTP_200_OK)
