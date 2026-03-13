@@ -2,24 +2,30 @@
   <div class="home-page">
     <header class="navbar">
       <div class="logo">TaskFlow</div>
-      <button class="logout-btn" @click="handleLogout">退出登录</button>
+      <div class="nav-actions">
+        <router-link to="/teams" class="nav-link">我的团队</router-link>
+        <button class="logout-btn" @click="handleLogout">退出登录</button>
+      </div>
     </header>
 
     <main class="content">
       <div class="card">
         <h1>欢迎来到 TaskFlow</h1>
-        <p>你已经成功完成前后端登录闭环。</p>
+        <p>你已经完成用户系统，今天开始进入团队协作模块。</p>
 
         <div v-if="user" class="user-box">
           <h2>当前用户信息</h2>
           <p><strong>用户名：</strong>{{ user.username }}</p>
           <p><strong>邮箱：</strong>{{ user.email }}</p>
           <p><strong>简介：</strong>{{ user.bio || '暂无简介' }}</p>
-          <p><strong>创建时间：</strong>{{ user.created_at }}</p>
 
           <div v-if="user.avatar" class="avatar-box">
             <img :src="user.avatar" alt="avatar" />
           </div>
+        </div>
+
+        <div class="action-box">
+          <router-link to="/teams" class="action-btn">进入团队模块</router-link>
         </div>
 
         <p v-if="loading">正在加载用户信息...</p>
@@ -39,7 +45,6 @@ const userStore = useUserStore()
 
 const loading = ref(false)
 const errorMsg = ref('')
-
 const user = computed(() => userStore.userInfo)
 
 async function loadProfile() {
@@ -87,6 +92,16 @@ onMounted(() => {
   font-weight: bold;
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-link {
+  color: white;
+}
+
 .logout-btn {
   padding: 10px 16px;
   border: none;
@@ -102,36 +117,31 @@ onMounted(() => {
 }
 
 .card {
-  width: 700px;
+  width: 720px;
   background: white;
   border-radius: 14px;
   padding: 32px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
-h1 {
-  margin-bottom: 12px;
+.action-box {
+  margin-top: 24px;
 }
 
-h2 {
-  margin-top: 28px;
-  margin-bottom: 14px;
-}
-
-.user-box p {
-  margin: 10px 0;
-}
-
-.avatar-box {
-  margin-top: 18px;
+.action-btn {
+  display: inline-block;
+  background: #2563eb;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 8px;
 }
 
 .avatar-box img {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
-  border: 1px solid #ddd;
+  object-fit: cover;
+  margin-top: 16px;
 }
 
 .error {
