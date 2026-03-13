@@ -11,3 +11,15 @@ export function getTeamProjects(teamId) {
 export function getProjectDetail(projectId) {
   return http.get(`/projects/${projectId}/`)
 }
+
+export function updateProject(projectId, data) {
+  return http.put(`/projects/${projectId}/update/`, data)
+}
+
+export function updateProjectStatus(projectId, data) {
+  return http.patch(`/projects/${projectId}/status/`, data)
+}
+
+export function deleteProject(projectId) {
+  return http.delete(`/projects/${projectId}/delete/`)
+}

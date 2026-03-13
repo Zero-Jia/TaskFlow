@@ -12,7 +12,22 @@ class ProjectCreateSerializer(serializers.ModelSerializer):
         if len(value) < 2:
             raise serializers.ValidationError("项目名称至少 2 个字符")
         return value
+    
+class ProjectUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['name', 'description', 'status']
 
+    def validate_name(self, value):
+        value = value.strip()
+        if len(value) < 2:
+            raise serializers.ValidationError("项目名称至少 2 个字符")
+        return value
+
+class ProjectStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['status']
 
 class ProjectListSerializer(serializers.ModelSerializer):
     team_name = serializers.CharField(source='team.name', read_only=True)
