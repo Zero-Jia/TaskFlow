@@ -11,6 +11,9 @@ import ProjectList from '../pages/ProjectList.vue'
 import ProjectCreate from '../pages/ProjectCreate.vue'
 import ProjectDetail from '../pages/ProjectDetail.vue'
 import ProjectEdit from '../pages/ProjectEdit.vue'
+import TaskList from '../pages/TaskList.vue'
+import TaskCreate from '../pages/TaskCreate.vue'
+import TaskDetail from '../pages/TaskDetail.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -24,6 +27,9 @@ const routes = [
   { path: '/teams/:teamId/projects/create', name: 'project-create', component: ProjectCreate, meta: { requiresAuth: true } },
   { path: '/projects/:id', name: 'project-detail', component: ProjectDetail, meta: { requiresAuth: true } },
   { path: '/projects/:id/edit', name: 'project-edit', component: ProjectEdit, meta: { requiresAuth: true } },
+  { path: '/projects/:projectId/tasks',name: 'task-list',component: TaskList,meta: { requiresAuth: true }},
+  { path: '/projects/:projectId/tasks/create',name: 'task-create',component: TaskCreate,meta: { requiresAuth: true }},
+  {path: '/tasks/:id',name: 'task-detail',component: TaskDetail,meta: { requiresAuth: true }},
 ]
 
 const router = createRouter({

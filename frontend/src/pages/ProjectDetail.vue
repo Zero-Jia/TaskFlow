@@ -19,6 +19,12 @@
         <p><strong>创建时间：</strong>{{ project.created_at }}</p>
         <p><strong>更新时间：</strong>{{ project.updated_at }}</p>
 
+        <div class="task-entry">
+          <router-link :to="`/projects/${project.id}/tasks`" class="btn primary">
+            查看任务列表
+          </router-link>
+        </div>
+
         <div class="action-box">
           <router-link :to="`/projects/${project.id}/edit`" class="btn primary">
             编辑项目
@@ -136,6 +142,11 @@ onMounted(() => {
 .danger {
   background: #ef4444;
   color: white;
+}
+
+.task-entry {
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 .action-box {
