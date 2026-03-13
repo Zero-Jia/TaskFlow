@@ -14,6 +14,12 @@
         <p><strong>拥有者：</strong>{{ team.owner_username }}</p>
         <p><strong>成员数：</strong>{{ team.member_count }}</p>
 
+        <div class="project-entry">
+          <router-link :to="`/teams/${team.id}/projects`" class="btn admin">
+            查看该团队项目
+          </router-link>
+        </div>
+
         <div class="invite-box">
           <h2>邀请成员</h2>
           <div class="invite-form">
@@ -39,9 +45,15 @@
           <p><strong>角色：</strong>{{ member.role }}</p>
 
           <div class="member-actions" v-if="member.role !== 'owner'">
-            <button class="btn admin" @click="changeRole(member.id, 'admin')">设为管理员</button>
-            <button class="btn member" @click="changeRole(member.id, 'member')">设为普通成员</button>
-            <button class="btn danger" @click="handleRemove(member.id)">移除成员</button>
+            <button class="btn admin" @click="changeRole(member.id, 'admin')">
+              设为管理员
+            </button>
+            <button class="btn member" @click="changeRole(member.id, 'member')">
+              设为普通成员
+            </button>
+            <button class="btn danger" @click="handleRemove(member.id)">
+              移除成员
+            </button>
           </div>
         </div>
       </div>
@@ -161,11 +173,17 @@ onMounted(() => {
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
+  display: inline-block;
 }
 
 .secondary {
   background: #e5e7eb;
   color: #111827;
+}
+
+.project-entry {
+  margin-top: 16px;
+  margin-bottom: 20px;
 }
 
 .invite-box {

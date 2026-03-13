@@ -7,6 +7,9 @@ import Home from '../pages/Home.vue'
 import TeamList from '../pages/TeamList.vue'
 import TeamCreate from '../pages/TeamCreate.vue'
 import TeamDetail from '../pages/TeamDetail.vue'
+import ProjectList from '../pages/ProjectList.vue'
+import ProjectCreate from '../pages/ProjectCreate.vue'
+import ProjectDetail from '../pages/ProjectDetail.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -16,6 +19,9 @@ const routes = [
   { path: '/teams', name: 'teams', component: TeamList, meta: { requiresAuth: true } },
   { path: '/teams/create', name: 'team-create', component: TeamCreate, meta: { requiresAuth: true } },
   { path: '/teams/:id', name: 'team-detail', component: TeamDetail, meta: { requiresAuth: true } },
+  { path: '/teams/:teamId/projects', name: 'project-list', component: ProjectList, meta: { requiresAuth: true } },
+  { path: '/teams/:teamId/projects/create', name: 'project-create', component: ProjectCreate, meta: { requiresAuth: true } },
+  { path: '/projects/:id', name: 'project-detail', component: ProjectDetail, meta: { requiresAuth: true } },
 ]
 
 const router = createRouter({
