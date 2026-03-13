@@ -8,8 +8,13 @@ from apps.teams.models import TeamMember
 from .models import Task
 from .serializers import (
     TaskCreateSerializer,
+    TaskUpdateSerializer,
+    TaskStatusUpdateSerializer,
+    TaskPriorityUpdateSerializer,
+    TaskAssigneeUpdateSerializer,
     TaskListSerializer,
     TaskDetailSerializer,
+    ProjectMemberOptionSerializer,
 )
 
 
@@ -99,4 +104,122 @@ def task_detail(request, task_id):
     return Response({
         'message': '获取任务详情成功',
         'task': serializer.data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_task(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    serializer = TaskUpdateSerializer(instance=task, data=request.data)
+    if not serializer.is_valid():
+        return Response({
+            'message': '更新任务失败',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer.save()
+
+    return Response({
+        'message': '任务更新成功',
+        'task': TaskDetailSerializer(task).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_task_status(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    serializer = TaskStatusUpdateSerializer(instance=task, data=request.data, partial=True)
+    if not serializer.is_valid():
+        return Response({
+            'message': '更新任务状态失败',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer.save()
+
+    return Response({
+        'message': '任务状态更新成功',
+        'task': TaskDetailSerializer(task).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_task_priority(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    serializer = TaskPriorityUpdateSerializer(instance=task, data=request.data, partial=True)
+    if not serializer.is_valid():
+        return Response({
+            'message': '更新任务优先级失败',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer.save()
+
+    return Response({
+        'message': '任务优先级更新成功',
+        'task': TaskDetailSerializer(task).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def update_task_assignee(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    serializer = TaskAssigneeUpdateSerializer(instance=task, data=request.data, partial=True)
+    if not serializer.is_valid():
+        return Response({
+            'message': '更新任务负责人失败',
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer.save()
+
+    return Response({
+        'message': '任务负责人更新成功',
+        'task': TaskDetailSerializer(task).data
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_task(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    task.delete()
+
+    return Response({
+        'message': '任务删除成功'
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def project_member_options(request, project_id):
+    project, error_response = check_project_membership(project_id, request.user)
+    if error_response:
+        return error_response
+
+    members = TeamMember.objects.filter(team=project.team).select_related('user').order_by('joined_at')
+    serializer = ProjectMemberOptionSerializer(members, many=True)
+
+    return Response({
+        'message': '获取项目成员选项成功',
+        'members': serializer.data
     }, status=status.HTTP_200_OK)
