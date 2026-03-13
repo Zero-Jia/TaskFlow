@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.contrib .auth import get_user_model
 from .models import Team, TeamMember
 
 # 只负责创建团队时的数据校验。
@@ -55,3 +56,17 @@ class TeamDetailSerializer(serializers.ModelSerializer):
 
     def get_member_count(self, obj):
         return obj.members.count()
+
+# 邀请成员 
+class TeamInviteSerializer(serializers.Serializer):
+    username = serializers.CharField()
+
+    def validate_username(self, value):
+        value = value.strip()
+        if not value:
+            raise serializers.ValidationError("用户名不能为空")
+        return value
+
+# 修改成员角色
+class TeamRoleUpdateSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=['admin', 'member'])
