@@ -18,6 +18,7 @@ import TaskEdit from '../pages/TaskEdit.vue'
 import TaskBoard from '../pages/TaskBoard.vue'
 import NotificationList from '../pages/NotificationList.vue'
 import Dashboard from '../pages/Dashboard.vue'
+import Profile from '../pages/Profile.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -47,6 +48,7 @@ const routes = [
 
   { path: '/notifications', name: 'notifications', component: NotificationList, meta: { requiresAuth: true }},
   { path: '/dashboard',name: 'dashboard',component: Dashboard,meta: { requiresAuth: true }},
+  { path: '/profile',name: 'profile',component: Profile,meta: { requiresAuth: true }},
 ]
 
 const router = createRouter({

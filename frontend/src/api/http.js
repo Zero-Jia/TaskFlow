@@ -1,6 +1,6 @@
 // 封装 Axios 请求
 import axios from 'axios'
-import { getAccessToken, clearTokens } from '../utils/auth'
+import { getAccessToken, clearTokens, clearUsername } from '../utils/auth'
 
 const http = axios.create({
   baseURL: 'http://127.0.0.1:8000/api',
@@ -23,6 +23,7 @@ http.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       clearTokens()
+      clearUsername()
     }
     return Promise.reject(error)
   }

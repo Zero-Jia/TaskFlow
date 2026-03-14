@@ -6,6 +6,7 @@
         <router-link to="/teams" class="nav-link">我的团队</router-link>
         <router-link to="/dashboard" class="nav-link">统计面板</router-link>
         <router-link to="/notifications" class="nav-link">通知中心</router-link>
+        <router-link to="/profile" class="nav-link">个人中心</router-link>
         <button class="logout-btn" @click="handleLogout">退出登录</button>
       </div>
     </header>
@@ -30,6 +31,9 @@
           <router-link to="/teams" class="action-btn">进入团队模块</router-link>
           <router-link to="/dashboard" class="action-btn secondary-btn">
             查看统计面板
+          </router-link>
+          <router-link to="/profile" class="action-btn profile-btn">
+            进入个人中心
           </router-link>
         </div>
 
@@ -141,6 +145,9 @@ onMounted(() => {
 
 .action-box {
   margin-top: 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .action-btn {
@@ -150,11 +157,14 @@ onMounted(() => {
   padding: 12px 18px;
   border-radius: 8px;
   text-decoration: none;
-  margin-right: 12px;
 }
 
 .secondary-btn {
   background: #10b981;
+}
+
+.profile-btn {
+  background: #8b5cf6;
 }
 
 .avatar-box img {
