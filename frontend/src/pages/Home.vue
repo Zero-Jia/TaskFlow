@@ -4,6 +4,7 @@
       <div class="logo">TaskFlow</div>
       <div class="nav-actions">
         <router-link to="/teams" class="nav-link">我的团队</router-link>
+        <router-link to="/notifications" class="nav-link">通知中心</router-link>
         <button class="logout-btn" @click="handleLogout">退出登录</button>
       </div>
     </header>
@@ -100,6 +101,11 @@ onMounted(() => {
 
 .nav-link {
   color: white;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
 }
 
 .logout-btn {
@@ -108,6 +114,7 @@ onMounted(() => {
   background: #ef4444;
   color: white;
   border-radius: 8px;
+  cursor: pointer;
 }
 
 .content {
@@ -134,6 +141,7 @@ onMounted(() => {
   color: white;
   padding: 12px 18px;
   border-radius: 8px;
+  text-decoration: none;
 }
 
 .avatar-box img {

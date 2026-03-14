@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/', include('apps.teams.urls')),
     path('api/', include('apps.projects.urls')),
     path('api/', include('apps.tasks.urls')),
+    path('api/', include('apps.notifications.urls')),
 ]
 
 if settings.DEBUG:

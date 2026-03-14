@@ -16,25 +16,35 @@ import TaskCreate from '../pages/TaskCreate.vue'
 import TaskDetail from '../pages/TaskDetail.vue'
 import TaskEdit from '../pages/TaskEdit.vue'
 import TaskBoard from '../pages/TaskBoard.vue'
+import NotificationList from '../pages/NotificationList.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
+
   { path: '/login', name: 'login', component: Login },
   { path: '/register', name: 'register', component: Register },
+
   { path: '/home', name: 'home', component: Home, meta: { requiresAuth: true } },
+
   { path: '/teams', name: 'teams', component: TeamList, meta: { requiresAuth: true } },
   { path: '/teams/create', name: 'team-create', component: TeamCreate, meta: { requiresAuth: true } },
   { path: '/teams/:id', name: 'team-detail', component: TeamDetail, meta: { requiresAuth: true } },
+
   { path: '/teams/:teamId/projects', name: 'project-list', component: ProjectList, meta: { requiresAuth: true } },
   { path: '/teams/:teamId/projects/create', name: 'project-create', component: ProjectCreate, meta: { requiresAuth: true } },
+
   { path: '/projects/:id', name: 'project-detail', component: ProjectDetail, meta: { requiresAuth: true } },
   { path: '/projects/:id/edit', name: 'project-edit', component: ProjectEdit, meta: { requiresAuth: true } },
-  { path: '/projects/:projectId/tasks',name: 'task-list',component: TaskList,meta: { requiresAuth: true }},
-  { path: '/projects/:projectId/tasks/create',name: 'task-create',component: TaskCreate,meta: { requiresAuth: true }},
-  { path: '/tasks/:id',name: 'task-detail',component: TaskDetail,meta: { requiresAuth: true }},
-  { path: '/tasks/:id/edit', name: 'task-edit', component: TaskEdit, meta: { requiresAuth: true } },
-  { path: '/projects/:projectId/task-board',name: 'task-board',component: TaskBoard,meta: { requiresAuth: true },
-  },
+
+  { path: '/projects/:projectId/tasks', name: 'task-list', component: TaskList, meta: { requiresAuth: true }},
+  { path: '/projects/:projectId/tasks/create', name: 'task-create', component: TaskCreate, meta: { requiresAuth: true }},
+
+  { path: '/tasks/:id', name: 'task-detail', component: TaskDetail, meta: { requiresAuth: true }},
+  { path: '/tasks/:id/edit', name: 'task-edit', component: TaskEdit, meta: { requiresAuth: true }},
+
+  { path: '/projects/:projectId/task-board', name: 'task-board', component: TaskBoard, meta: { requiresAuth: true }},
+
+  { path: '/notifications', name: 'notifications', component: NotificationList, meta: { requiresAuth: true }},
 ]
 
 const router = createRouter({

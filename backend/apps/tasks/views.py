@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage
 
 from apps.projects.models import Project
 from apps.teams.models import TeamMember
+from apps.notifications.models import Notification
 from .models import Task, Comment
 from .serializers import (
     TaskCreateSerializer,
@@ -73,6 +74,15 @@ def create_task(request):
         }, status=status.HTTP_403_FORBIDDEN)
 
     task = serializer.save(creator=request.user)
+
+    # 创建任务时，如果指定了负责人，并且负责人不是当前创建人，则创建通知
+    if task.assignee and task.assignee != request.user:
+        Notification.objects.create(
+            user=task.assignee,
+            type='task_assigned',
+            content=f'你被指派为任务《{task.title}》的负责人',
+            related_task_id=task.id
+        )
 
     return Response({
         'message': '任务创建成功',
@@ -235,6 +245,8 @@ def update_task_assignee(request, task_id):
     if error_response:
         return error_response
 
+    old_assignee = task.assignee
+
     serializer = TaskAssigneeUpdateSerializer(instance=task, data=request.data, partial=True)
     if not serializer.is_valid():
         return Response({
@@ -243,6 +255,16 @@ def update_task_assignee(request, task_id):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     serializer.save()
+    task.refresh_from_db()
+
+    # 只有在负责人真的发生变化时，才发送通知
+    if task.assignee and task.assignee != old_assignee and task.assignee != request.user:
+        Notification.objects.create(
+            user=task.assignee,
+            type='task_assigned',
+            content=f'你被指派为任务《{task.title}》的负责人',
+            related_task_id=task.id
+        )
 
     return Response({
         'message': '任务负责人更新成功',
@@ -310,6 +332,24 @@ def task_comment_list_create(request, task_id):
         content=content
     )
 
+    # 给负责人发通知
+    if task.assignee and task.assignee != request.user:
+        Notification.objects.create(
+            user=task.assignee,
+            type='task_comment',
+            content=f'任务《{task.title}》有新评论',
+            related_task_id=task.id
+        )
+
+    # 给任务创建者发通知，避免重复通知
+    if task.creator != request.user and task.creator != task.assignee:
+        Notification.objects.create(
+            user=task.creator,
+            type='task_comment',
+            content=f'任务《{task.title}》有新评论',
+            related_task_id=task.id
+        )
+
     return Response({
         'message': '评论发布成功',
         'comment': CommentSerializer(comment).data
@@ -341,6 +381,7 @@ def delete_task_comment(request, task_id, comment_id):
         'message': '评论删除成功'
     }, status=status.HTTP_200_OK)
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def project_task_board(request, project_id):
@@ -350,10 +391,10 @@ def project_task_board(request, project_id):
 
     tasks = Task.objects.filter(project=project).select_related('assignee')
 
-    todo_tasks = tasks.filter(status='todo').order_by('due_date','-created_at')
-    in_progress_tasks = tasks.filter(status='in_progress').order_by('due_date','-created_at')
-    done_tasks = tasks.filter(status='done').order_by('due_date','-created_at')
-    overdue_tasks = tasks.filter(status='overdue').order_by('due_date','-created_at')
+    todo_tasks = tasks.filter(status='todo').order_by('due_date', '-created_at')
+    in_progress_tasks = tasks.filter(status='in_progress').order_by('due_date', '-created_at')
+    done_tasks = tasks.filter(status='done').order_by('due_date', '-created_at')
+    overdue_tasks = tasks.filter(status='overdue').order_by('due_date', '-created_at')
 
     return Response({
         'message': '获取任务看板成功',
