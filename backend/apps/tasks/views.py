@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.paginator import Paginator, EmptyPage
 
 from apps.projects.models import Project
 from apps.teams.models import TeamMember
@@ -86,13 +87,21 @@ def project_task_list(request, project_id):
     if error_response:
         return error_response
 
-    tasks = Task.objects.filter(project=project).select_related('project', 'creator', 'assignee')
+    tasks = Task.objects.filter(project=project).select_related(
+        'project', 'creator', 'assignee'
+    )
 
     # 获取查询参数
+    search_param = request.query_params.get('search')
     status_param = request.query_params.get('status')
     priority_param = request.query_params.get('priority')
     assignee_param = request.query_params.get('assignee')
     ordering_param = request.query_params.get('ordering')
+    page_param = request.query_params.get('page', 1)
+
+    # 搜索：按标题模糊搜索
+    if search_param:
+        tasks = tasks.filter(title__icontains=search_param)
 
     # 状态筛选
     if status_param:
@@ -116,11 +125,26 @@ def project_task_list(request, project_id):
     else:
         tasks = tasks.order_by('-created_at')
 
-    serializer = TaskListSerializer(tasks, many=True)
+    # 分页：每页固定 5 条
+    paginator = Paginator(tasks, 5)
+
+    try:
+        page_obj = paginator.page(page_param)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    serializer = TaskListSerializer(page_obj.object_list, many=True)
 
     return Response({
         'message': '获取任务列表成功',
-        'tasks': serializer.data
+        'tasks': serializer.data,
+        'pagination': {
+            'current_page': page_obj.number,
+            'total_pages': paginator.num_pages,
+            'total_items': paginator.count,
+            'has_previous': page_obj.has_previous(),
+            'has_next': page_obj.has_next(),
+        }
     }, status=status.HTTP_200_OK)
 
 

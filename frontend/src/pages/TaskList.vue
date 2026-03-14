@@ -14,6 +14,13 @@
     </div>
 
     <div class="filter-bar">
+      <input
+        v-model="filters.search"
+        type="text"
+        placeholder="请输入任务标题关键词"
+        class="search-input"
+      />
+
       <select v-model="filters.status">
         <option value="">全部状态</option>
         <option value="todo">todo</option>
@@ -49,7 +56,7 @@
         <option value="-due_date">截止时间倒序</option>
       </select>
 
-      <button class="btn primary" @click="loadTasks">应用筛选</button>
+      <button class="btn primary" @click="handleSearch">应用筛选</button>
       <button class="btn secondary" @click="resetFilters">重置</button>
     </div>
 
@@ -58,7 +65,7 @@
       <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
 
       <div v-if="!loading && tasks.length === 0" class="empty-box">
-        当前筛选条件下没有任务。
+        当前条件下没有任务。
       </div>
 
       <div v-if="tasks.length > 0" class="task-grid">
@@ -73,6 +80,29 @@
             查看详情
           </router-link>
         </div>
+      </div>
+
+      <div v-if="pagination.total_pages > 1" class="pagination">
+        <button
+          class="btn secondary"
+          @click="changePage(pagination.current_page - 1)"
+          :disabled="!pagination.has_previous"
+        >
+          上一页
+        </button>
+
+        <span class="page-info">
+          第 {{ pagination.current_page }} / {{ pagination.total_pages }} 页
+          （共 {{ pagination.total_items }} 条）
+        </span>
+
+        <button
+          class="btn secondary"
+          @click="changePage(pagination.current_page + 1)"
+          :disabled="!pagination.has_next"
+        >
+          下一页
+        </button>
       </div>
     </div>
   </div>
@@ -91,11 +121,21 @@ const members = ref([])
 const loading = ref(false)
 const errorMsg = ref('')
 
+const pagination = reactive({
+  current_page: 1,
+  total_pages: 1,
+  total_items: 0,
+  has_previous: false,
+  has_next: false,
+})
+
 const filters = reactive({
+  search: '',
   status: '',
   priority: '',
   assignee: '',
   ordering: '-created_at',
+  page: 1,
 })
 
 async function loadMembers() {
@@ -109,6 +149,10 @@ async function loadTasks() {
     errorMsg.value = ''
 
     const params = {}
+
+    if (filters.search) {
+      params.search = filters.search
+    }
 
     if (filters.status) {
       params.status = filters.status
@@ -126,8 +170,19 @@ async function loadTasks() {
       params.ordering = filters.ordering
     }
 
+    if (filters.page) {
+      params.page = filters.page
+    }
+
     const response = await getProjectTasks(projectId, params)
     tasks.value = response.data.tasks || []
+
+    const pageData = response.data.pagination || {}
+    pagination.current_page = pageData.current_page || 1
+    pagination.total_pages = pageData.total_pages || 1
+    pagination.total_items = pageData.total_items || 0
+    pagination.has_previous = pageData.has_previous || false
+    pagination.has_next = pageData.has_next || false
   } catch (error) {
     errorMsg.value = error.response?.data?.message || '获取任务列表失败'
   } finally {
@@ -135,11 +190,23 @@ async function loadTasks() {
   }
 }
 
+function handleSearch() {
+  filters.page = 1
+  loadTasks()
+}
+
+function changePage(page) {
+  filters.page = page
+  loadTasks()
+}
+
 function resetFilters() {
+  filters.search = ''
   filters.status = ''
   filters.priority = ''
   filters.assignee = ''
   filters.ordering = '-created_at'
+  filters.page = 1
   loadTasks()
 }
 
@@ -186,7 +253,8 @@ onMounted(async () => {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
 }
 
-.filter-bar select {
+.filter-bar select,
+.search-input {
   padding: 10px 12px;
   border: 1px solid #d0d7e2;
   border-radius: 8px;
@@ -266,5 +334,18 @@ onMounted(async () => {
   padding: 24px;
   border-radius: 12px;
   color: #6b7280;
+}
+
+.pagination {
+  margin-top: 28px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #374151;
 }
 </style>

@@ -83,7 +83,7 @@ async function handleCreate() {
   const payload = {
     ...form,
     assignee: form.assignee ? Number(form.assignee) : null,
-    due_date: form.due_date ? new Date(form.due_date).toISOString() : null,
+    due_date: form.due_date ? form.due_date.slice(0, 10) : null,
   }
 
   try {
@@ -92,10 +92,11 @@ async function handleCreate() {
     const taskId = response.data.task.id
     router.push(`/tasks/${taskId}`)
   } catch (error) {
-    errorMsg.value =
-      error.response?.data?.message ||
-      JSON.stringify(error.response?.data?.errors || {}) ||
-      '创建任务失败'
+    if (error.response?.data?.errors) {
+      errorMsg.value = JSON.stringify(error.response.data.errors)
+    } else {
+      errorMsg.value = error.response?.data?.message || '创建任务失败'
+    }
   } finally {
     loading.value = false
   }
