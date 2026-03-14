@@ -55,3 +55,25 @@ class Comment(models.Model):
 
     def __str__(self):
         return f'{self.author.username} - {self.task.title}'
+
+
+class TaskAttachment(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name='attachments'
+    )
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='task_attachments'
+    )
+    file = models.FileField(upload_to='task_attachments/')
+    file_name = models.CharField(max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def __str__(self):
+        return self.file_name

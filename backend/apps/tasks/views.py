@@ -1,13 +1,14 @@
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.parsers import MultiPartParser, FormParser
 from django.core.paginator import Paginator, EmptyPage
 
 from apps.projects.models import Project
 from apps.teams.models import TeamMember
 from apps.notifications.models import Notification
-from .models import Task, Comment
+from .models import Task, Comment, TaskAttachment
 from .serializers import (
     TaskCreateSerializer,
     TaskUpdateSerializer,
@@ -17,6 +18,7 @@ from .serializers import (
     TaskListSerializer,
     TaskDetailSerializer,
     CommentSerializer,
+    TaskAttachmentSerializer,
     ProjectMemberOptionSerializer,
     TaskBoardCardSerializer,
 )
@@ -381,6 +383,51 @@ def delete_task_comment(request, task_id, comment_id):
         'message': '评论删除成功'
     }, status=status.HTTP_200_OK)
 
+@api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated])
+@parser_classes([MultiPartParser, FormParser])
+def task_attachment_list_create(request, task_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    if request.method == 'GET':
+        attachments = TaskAttachment.objects.filter(task=task).select_related('uploaded_by').order_by('-uploaded_at')
+        serializer = TaskAttachmentSerializer(
+            attachments,
+            many=True,
+            context={'request': request}
+        )
+        return Response({
+            'message': '获取附件列表成功',
+            'attachments': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    file_obj = request.FILES.get('file')
+    if not file_obj:
+        return Response({
+            'message': '上传附件失败',
+            'errors': {
+                'file': ['请选择要上传的文件']
+            }
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    attachment = TaskAttachment.objects.create(
+        task=task,
+        uploaded_by=request.user,
+        file=file_obj,
+        file_name=file_obj.name
+    )
+
+    serializer = TaskAttachmentSerializer(
+        attachment,
+        context={'request': request}
+    )
+
+    return Response({
+        'message': '附件上传成功',
+        'attachment': serializer.data
+    }, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -404,4 +451,33 @@ def project_task_board(request, project_id):
             'done': TaskBoardCardSerializer(done_tasks, many=True).data,
             'overdue': TaskBoardCardSerializer(overdue_tasks, many=True).data,
         }
+    }, status=status.HTTP_200_OK)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_task_attachment(request, task_id, attachment_id):
+    task, error_response = get_task_and_check_membership(task_id, request.user)
+    if error_response:
+        return error_response
+
+    try:
+        attachment = TaskAttachment.objects.select_related('uploaded_by', 'task').get(
+            id=attachment_id,
+            task=task
+        )
+    except TaskAttachment.DoesNotExist:
+        return Response({
+            'message': '附件不存在'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    if attachment.uploaded_by != request.user:
+        return Response({
+            'message': '你只能删除自己上传的附件'
+        }, status=status.HTTP_403_FORBIDDEN)
+
+    attachment.file.delete(save=False)
+    attachment.delete()
+
+    return Response({
+        'message': '附件删除成功'
     }, status=status.HTTP_200_OK)

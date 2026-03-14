@@ -11,7 +11,9 @@ from .views import (
     project_member_options,
     task_comment_list_create,
     delete_task_comment,
-    project_task_board
+    project_task_board,
+    task_attachment_list_create,
+    delete_task_attachment,
 )
 
 urlpatterns = [
@@ -27,4 +29,6 @@ urlpatterns = [
     path('tasks/<int:task_id>/comments/', task_comment_list_create, name='task_comment_list_create'),
     path('tasks/<int:task_id>/comments/<int:comment_id>/delete/', delete_task_comment, name='delete_task_comment'),
     path('projects/<int:project_id>/task-board/', project_task_board, name='project_task_board'),
+    path('tasks/<int:task_id>/attachments/', task_attachment_list_create, name='task-attachment-list-create'),
+    path('tasks/<int:task_id>/attachments/<int:attachment_id>/', delete_task_attachment, name='task-attachment-delete'),
 ]

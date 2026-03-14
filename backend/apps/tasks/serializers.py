@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from apps.teams.models import TeamMember
-from .models import Task, Comment
+from .models import Task, Comment, TaskAttachment
 
 User = get_user_model()
 
@@ -179,11 +179,44 @@ class CommentSerializer(serializers.ModelSerializer):
         ]
 
 
+class TaskAttachmentSerializer(serializers.ModelSerializer):
+    uploaded_by_username = serializers.CharField(source='uploaded_by.username', read_only=True)
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TaskAttachment
+        fields = [
+            'id',
+            'task',
+            'uploaded_by',
+            'uploaded_by_username',
+            'file',
+            'file_url',
+            'file_name',
+            'uploaded_at',
+        ]
+        read_only_fields = [
+            'id',
+            'task',
+            'uploaded_by',
+            'uploaded_by_username',
+            'file_name',
+            'uploaded_at',
+        ]
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.file.url)
+        return obj.file.url
+
+
 class ProjectMemberOptionSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(source='user.id')
     username = serializers.CharField(source='user.username')
     email = serializers.CharField(source='user.email')
     role = serializers.CharField()
+
 
 class TaskBoardCardSerializer(serializers.ModelSerializer):
     assignee_username = serializers.CharField(

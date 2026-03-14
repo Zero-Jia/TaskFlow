@@ -51,3 +51,19 @@ export function deleteTaskComment(taskId, commentId) {
 export function getProjectTaskBoard(projectId) {
   return http.get(`/projects/${projectId}/task-board/`)
 }
+
+export function getTaskAttachments(taskId) {
+  return http.get(`/tasks/${taskId}/attachments/`)
+}
+
+export function uploadTaskAttachment(taskId, formData) {
+  return http.post(`/tasks/${taskId}/attachments/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+export function deleteTaskAttachment(taskId, attachmentId) {
+  return http.delete(`/tasks/${taskId}/attachments/${attachmentId}/`)
+}
