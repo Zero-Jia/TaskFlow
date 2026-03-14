@@ -4,8 +4,8 @@ export function createTask(data) {
   return http.post('/tasks/create/', data)
 }
 
-export function getProjectTasks(projectId) {
-  return http.get(`/projects/${projectId}/tasks/`)
+export function getProjectTasks(projectId, params = {}) {
+  return http.get(`/projects/${projectId}/tasks/`, { params })
 }
 
 export function getTaskDetail(taskId) {

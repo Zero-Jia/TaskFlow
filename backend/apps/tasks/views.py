@@ -87,6 +87,35 @@ def project_task_list(request, project_id):
         return error_response
 
     tasks = Task.objects.filter(project=project).select_related('project', 'creator', 'assignee')
+
+    # 获取查询参数
+    status_param = request.query_params.get('status')
+    priority_param = request.query_params.get('priority')
+    assignee_param = request.query_params.get('assignee')
+    ordering_param = request.query_params.get('ordering')
+
+    # 状态筛选
+    if status_param:
+        tasks = tasks.filter(status=status_param)
+
+    # 优先级筛选
+    if priority_param:
+        tasks = tasks.filter(priority=priority_param)
+
+    # 负责人筛选
+    if assignee_param:
+        if assignee_param == 'unassigned':
+            tasks = tasks.filter(assignee__isnull=True)
+        else:
+            tasks = tasks.filter(assignee_id=assignee_param)
+
+    # 排序
+    allowed_ordering = ['due_date', '-due_date', 'created_at', '-created_at']
+    if ordering_param in allowed_ordering:
+        tasks = tasks.order_by(ordering_param)
+    else:
+        tasks = tasks.order_by('-created_at')
+
     serializer = TaskListSerializer(tasks, many=True)
 
     return Response({
