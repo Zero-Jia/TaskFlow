@@ -11,6 +11,7 @@ from .views import (
     project_member_options,
     task_comment_list_create,
     delete_task_comment,
+    project_task_board
 )
 
 urlpatterns = [
@@ -23,7 +24,7 @@ urlpatterns = [
     path('tasks/<int:task_id>/assignee/', update_task_assignee, name='update_task_assignee'),
     path('tasks/<int:task_id>/delete/', delete_task, name='delete_task'),
     path('projects/<int:project_id>/member-options/', project_member_options, name='project_member_options'),
-
     path('tasks/<int:task_id>/comments/', task_comment_list_create, name='task_comment_list_create'),
     path('tasks/<int:task_id>/comments/<int:comment_id>/delete/', delete_task_comment, name='delete_task_comment'),
+    path('projects/<int:project_id>/task-board/', project_task_board, name='project_task_board'),
 ]

@@ -184,3 +184,22 @@ class ProjectMemberOptionSerializer(serializers.Serializer):
     username = serializers.CharField(source='user.username')
     email = serializers.CharField(source='user.email')
     role = serializers.CharField()
+
+class TaskBoardCardSerializer(serializers.ModelSerializer):
+    assignee_username = serializers.CharField(
+        source='assignee.username',
+        read_only=True,
+        default=None
+    )
+
+    class Meta:
+        model = Task
+        fields = [
+            'id',
+            'title',
+            'status',
+            'priority',
+            'assignee_username',
+            'due_date',
+            'created_at',
+        ]

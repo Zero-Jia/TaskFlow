@@ -16,6 +16,7 @@ from .serializers import (
     TaskDetailSerializer,
     CommentSerializer,
     ProjectMemberOptionSerializer,
+    TaskBoardCardSerializer,
 )
 
 
@@ -285,4 +286,28 @@ def delete_task_comment(request, task_id, comment_id):
 
     return Response({
         'message': '评论删除成功'
+    }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def project_task_board(request, project_id):
+    project, error_response = check_project_membership(project_id, request.user)
+    if error_response:
+        return error_response
+
+    tasks = Task.objects.filter(project=project).select_related('assignee')
+
+    todo_tasks = tasks.filter(status='todo').order_by('due_date','-created_at')
+    in_progress_tasks = tasks.filter(status='in_progress').order_by('due_date','-created_at')
+    done_tasks = tasks.filter(status='done').order_by('due_date','-created_at')
+    overdue_tasks = tasks.filter(status='overdue').order_by('due_date','-created_at')
+
+    return Response({
+        'message': '获取任务看板成功',
+        'board': {
+            'todo': TaskBoardCardSerializer(todo_tasks, many=True).data,
+            'in_progress': TaskBoardCardSerializer(in_progress_tasks, many=True).data,
+            'done': TaskBoardCardSerializer(done_tasks, many=True).data,
+            'overdue': TaskBoardCardSerializer(overdue_tasks, many=True).data,
+        }
     }, status=status.HTTP_200_OK)

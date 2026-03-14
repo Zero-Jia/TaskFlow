@@ -23,6 +23,9 @@
           <router-link :to="`/projects/${project.id}/tasks`" class="btn primary">
             查看任务列表
           </router-link>
+          <router-link :to="`/projects/${project.id}/task-board`" class="btn success">
+            查看任务看板
+          </router-link>
         </div>
 
         <div class="action-box">
@@ -122,6 +125,7 @@ onMounted(() => {
   border-radius: 8px;
   text-decoration: none;
   cursor: pointer;
+  display: inline-block;
 }
 
 .secondary {
@@ -145,8 +149,11 @@ onMounted(() => {
 }
 
 .task-entry {
+  display: flex;
+  gap: 12px;
   margin-top: 20px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .action-box {

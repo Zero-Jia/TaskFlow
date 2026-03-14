@@ -47,3 +47,7 @@ export function createTaskComment(taskId, data) {
 export function deleteTaskComment(taskId, commentId) {
   return http.delete(`/tasks/${taskId}/comments/${commentId}/delete/`)
 }
+
+export function getProjectTaskBoard(projectId) {
+  return http.get(`/projects/${projectId}/task-board/`)
+}

@@ -15,6 +15,7 @@ import TaskList from '../pages/TaskList.vue'
 import TaskCreate from '../pages/TaskCreate.vue'
 import TaskDetail from '../pages/TaskDetail.vue'
 import TaskEdit from '../pages/TaskEdit.vue'
+import TaskBoard from '../pages/TaskBoard.vue'
 
 const routes = [
   { path: '/', redirect: '/home' },
@@ -30,8 +31,10 @@ const routes = [
   { path: '/projects/:id/edit', name: 'project-edit', component: ProjectEdit, meta: { requiresAuth: true } },
   { path: '/projects/:projectId/tasks',name: 'task-list',component: TaskList,meta: { requiresAuth: true }},
   { path: '/projects/:projectId/tasks/create',name: 'task-create',component: TaskCreate,meta: { requiresAuth: true }},
-  {path: '/tasks/:id',name: 'task-detail',component: TaskDetail,meta: { requiresAuth: true }},
+  { path: '/tasks/:id',name: 'task-detail',component: TaskDetail,meta: { requiresAuth: true }},
   { path: '/tasks/:id/edit', name: 'task-edit', component: TaskEdit, meta: { requiresAuth: true } },
+  { path: '/projects/:projectId/task-board',name: 'task-board',component: TaskBoard,meta: { requiresAuth: true },
+  },
 ]
 
 const router = createRouter({
