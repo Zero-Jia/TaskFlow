@@ -6,9 +6,12 @@
       </div>
 
       <p v-if="loading">正在加载团队详情...</p>
-      <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
 
-      <div v-if="team" class="card">
+      <ErrorState v-if="errorMsg" title="团队详情加载失败" :message="errorMsg">
+        <router-link to="/teams" class="btn secondary">返回团队列表</router-link>
+      </ErrorState>
+
+      <div v-if="!loading && !errorMsg && team" class="card">
         <h1>{{ team.name }}</h1>
         <p><strong>描述：</strong>{{ team.description || '暂无描述' }}</p>
         <p><strong>拥有者：</strong>{{ team.owner_username }}</p>
@@ -70,6 +73,8 @@ import {
   updateTeamMemberRole,
   removeTeamMember,
 } from '../api/team'
+import ErrorState from '../components/ErrorState.vue'
+import { getErrorMessage } from '../utils/error'
 
 const route = useRoute()
 const team = ref(null)
@@ -88,7 +93,7 @@ async function loadTeamDetail() {
     const response = await getTeamDetail(route.params.id)
     team.value = response.data.team
   } catch (error) {
-    errorMsg.value = error.response?.data?.message || '获取团队详情失败'
+    errorMsg.value = getErrorMessage(error, '获取团队详情失败')
   } finally {
     loading.value = false
   }
@@ -112,7 +117,7 @@ async function handleInvite() {
     inviteUsername.value = ''
     await loadTeamDetail()
   } catch (error) {
-    inviteError.value = error.response?.data?.message || '邀请失败'
+    inviteError.value = getErrorMessage(error, '邀请失败')
   } finally {
     inviteLoading.value = false
   }
@@ -123,7 +128,7 @@ async function changeRole(memberId, role) {
     await updateTeamMemberRole(route.params.id, memberId, { role })
     await loadTeamDetail()
   } catch (error) {
-    alert(error.response?.data?.message || '修改角色失败')
+    alert(getErrorMessage(error, '修改角色失败'))
   }
 }
 
@@ -135,7 +140,7 @@ async function handleRemove(memberId) {
     await removeTeamMember(route.params.id, memberId)
     await loadTeamDetail()
   } catch (error) {
-    alert(error.response?.data?.message || '移除成员失败')
+    alert(getErrorMessage(error, '移除成员失败'))
   }
 }
 

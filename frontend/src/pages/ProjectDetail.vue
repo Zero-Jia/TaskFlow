@@ -2,15 +2,26 @@
   <div class="page">
     <div class="container">
       <div class="topbar">
-        <router-link v-if="project" :to="`/teams/${project.team}/projects`" class="btn secondary">
+        <router-link
+          v-if="project"
+          :to="`/teams/${project.team}/projects`"
+          class="btn secondary"
+        >
           返回项目列表
+        </router-link>
+
+        <router-link v-else to="/teams" class="btn secondary">
+          返回团队列表
         </router-link>
       </div>
 
       <p v-if="loading">正在加载项目详情...</p>
-      <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
 
-      <div v-if="project" class="card">
+      <ErrorState v-if="errorMsg" title="项目详情加载失败" :message="errorMsg">
+        <router-link to="/teams" class="btn secondary">返回团队列表</router-link>
+      </ErrorState>
+
+      <div v-if="!loading && !errorMsg && project" class="card">
         <h1>{{ project.name }}</h1>
         <p><strong>所属团队：</strong>{{ project.team_name }}</p>
         <p><strong>状态：</strong>{{ project.status }}</p>
@@ -33,9 +44,15 @@
             编辑项目
           </router-link>
 
-          <button class="btn success" @click="handleStatusChange('active')">设为 active</button>
-          <button class="btn success" @click="handleStatusChange('completed')">设为 completed</button>
-          <button class="btn success" @click="handleStatusChange('archived')">设为 archived</button>
+          <button class="btn success" @click="handleStatusChange('active')">
+            设为 active
+          </button>
+          <button class="btn success" @click="handleStatusChange('completed')">
+            设为 completed
+          </button>
+          <button class="btn success" @click="handleStatusChange('archived')">
+            设为 archived
+          </button>
 
           <button class="btn danger" @click="handleDelete">删除项目</button>
         </div>
@@ -48,6 +65,8 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProjectDetail, updateProjectStatus, deleteProject } from '../api/project'
+import ErrorState from '../components/ErrorState.vue'
+import { getErrorMessage } from '../utils/error'
 
 const route = useRoute()
 const router = useRouter()
@@ -60,10 +79,11 @@ async function loadProjectDetail() {
   try {
     loading.value = true
     errorMsg.value = ''
+
     const response = await getProjectDetail(route.params.id)
     project.value = response.data.project
   } catch (error) {
-    errorMsg.value = error.response?.data?.message || '获取项目详情失败'
+    errorMsg.value = getErrorMessage(error, '获取项目详情失败')
   } finally {
     loading.value = false
   }
@@ -74,7 +94,7 @@ async function handleStatusChange(status) {
     await updateProjectStatus(route.params.id, { status })
     await loadProjectDetail()
   } catch (error) {
-    alert(error.response?.data?.message || '更新项目状态失败')
+    alert(getErrorMessage(error, '更新项目状态失败'))
   }
 }
 
@@ -87,7 +107,7 @@ async function handleDelete() {
     await deleteProject(route.params.id)
     router.push(`/teams/${teamId}/projects`)
   } catch (error) {
-    alert(error.response?.data?.message || '删除项目失败')
+    alert(getErrorMessage(error, '删除项目失败'))
   }
 }
 
@@ -161,9 +181,5 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 24px;
-}
-
-.error {
-  color: #dc2626;
 }
 </style>

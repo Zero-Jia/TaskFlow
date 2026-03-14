@@ -62,13 +62,22 @@
 
     <div class="container">
       <p v-if="loading">正在加载任务列表...</p>
-      <p v-if="errorMsg" class="error">{{ errorMsg }}</p>
 
-      <div v-if="!loading && tasks.length === 0" class="empty-box">
-        当前条件下没有任务。
-      </div>
+      <ErrorState v-if="errorMsg" title="任务列表加载失败" :message="errorMsg">
+        <button class="btn secondary" @click="loadTasks">重新加载</button>
+      </ErrorState>
 
-      <div v-if="tasks.length > 0" class="task-grid">
+      <EmptyState
+        v-if="!loading && !errorMsg && tasks.length === 0"
+        title="当前条件下没有任务"
+        description="你可以调整筛选条件，或者创建一个新任务。"
+      >
+        <router-link :to="`/projects/${projectId}/tasks/create`" class="btn primary">
+          创建任务
+        </router-link>
+      </EmptyState>
+
+      <div v-if="!loading && !errorMsg && tasks.length > 0" class="task-grid">
         <div v-for="task in tasks" :key="task.id" class="task-card">
           <h2>{{ task.title }}</h2>
           <p>{{ task.description || '暂无描述' }}</p>
@@ -82,7 +91,10 @@
         </div>
       </div>
 
-      <div v-if="pagination.total_pages > 1" class="pagination">
+      <div
+        v-if="!loading && !errorMsg && tasks.length > 0 && pagination.total_pages > 1"
+        class="pagination"
+      >
         <button
           class="btn secondary"
           @click="changePage(pagination.current_page - 1)"
@@ -112,6 +124,9 @@
 import { onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { getProjectTasks, getProjectMemberOptions } from '../api/task'
+import EmptyState from '../components/EmptyState.vue'
+import ErrorState from '../components/ErrorState.vue'
+import { getErrorMessage } from '../utils/error'
 
 const route = useRoute()
 const projectId = route.params.projectId
@@ -184,7 +199,7 @@ async function loadTasks() {
     pagination.has_previous = pageData.has_previous || false
     pagination.has_next = pageData.has_next || false
   } catch (error) {
-    errorMsg.value = error.response?.data?.message || '获取任务列表失败'
+    errorMsg.value = getErrorMessage(error, '获取任务列表失败')
   } finally {
     loading.value = false
   }
@@ -215,7 +230,7 @@ onMounted(async () => {
     await loadMembers()
     await loadTasks()
   } catch (error) {
-    errorMsg.value = error.response?.data?.message || '页面初始化失败'
+    errorMsg.value = getErrorMessage(error, '页面初始化失败')
   }
 })
 </script>
@@ -322,18 +337,6 @@ onMounted(async () => {
 
 .detail-link:hover {
   text-decoration: underline;
-}
-
-.error {
-  color: #dc2626;
-  margin-bottom: 16px;
-}
-
-.empty-box {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  color: #6b7280;
 }
 
 .pagination {
