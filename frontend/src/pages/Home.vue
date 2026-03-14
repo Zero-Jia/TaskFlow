@@ -4,6 +4,7 @@
       <div class="logo">TaskFlow</div>
       <div class="nav-actions">
         <router-link to="/teams" class="nav-link">我的团队</router-link>
+        <router-link to="/dashboard" class="nav-link">统计面板</router-link>
         <router-link to="/notifications" class="nav-link">通知中心</router-link>
         <button class="logout-btn" @click="handleLogout">退出登录</button>
       </div>
@@ -27,6 +28,9 @@
 
         <div class="action-box">
           <router-link to="/teams" class="action-btn">进入团队模块</router-link>
+          <router-link to="/dashboard" class="action-btn secondary-btn">
+            查看统计面板
+          </router-link>
         </div>
 
         <p v-if="loading">正在加载用户信息...</p>
@@ -131,6 +135,10 @@ onMounted(() => {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
+.user-box {
+  margin-top: 24px;
+}
+
 .action-box {
   margin-top: 24px;
 }
@@ -142,6 +150,11 @@ onMounted(() => {
   padding: 12px 18px;
   border-radius: 8px;
   text-decoration: none;
+  margin-right: 12px;
+}
+
+.secondary-btn {
+  background: #10b981;
 }
 
 .avatar-box img {
